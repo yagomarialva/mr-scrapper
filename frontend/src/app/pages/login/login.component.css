@@ -1,0 +1,87 @@
+/* ── Auth Page Layout ─────────────────────────────────────────── */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 440px;
+  padding: var(--spacing-2xl);
+  animation: fadeInScale 0.5s ease;
+}
+
+/* ── Logo ─────────────────────────────────────────────────────── */
+.auth-logo {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.logo-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  animation: pulse-glow 3s infinite;
+  filter: drop-shadow(0 0 20px var(--accent-glow));
+}
+
+.logo-text {
+  font-size: 1.75rem;
+  font-weight: 800;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.logo-subtitle {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  margin-top: var(--spacing-xs);
+}
+
+/* ── Form ─────────────────────────────────────────────────────── */
+.auth-form {
+  margin-top: var(--spacing-lg);
+}
+
+.auth-submit {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+  margin-top: var(--spacing-sm);
+}
+
+/* ── Footer ───────────────────────────────────────────────────── */
+.auth-footer {
+  text-align: center;
+  margin-top: var(--spacing-lg);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.auth-link {
+  font-weight: 600;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Spinner ──────────────────────────────────────────────────── */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

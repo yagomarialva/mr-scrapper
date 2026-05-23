@@ -1,0 +1,103 @@
+<div class="auth-page">
+  <div class="auth-container glass-card">
+    <!-- Logo -->
+    <div class="auth-logo">
+      <span class="logo-icon">🎬</span>
+      <h1 class="logo-text">Mr. Scrapper</h1>
+      <p class="logo-subtitle">Crie sua conta</p>
+    </div>
+
+    <!-- Alerts -->
+    @if (error()) {
+      <div class="alert alert-error">{{ error() }}</div>
+    }
+    @if (success()) {
+      <div class="alert alert-success">
+        ✅ {{ success() }}
+        <p class="alert-sub">
+          <a routerLink="/login" class="auth-link">Ir para o login →</a>
+        </p>
+      </div>
+    }
+
+    <!-- Register Form -->
+    @if (!success()) {
+      <form (ngSubmit)="onSubmit()" class="auth-form">
+        <div class="form-group">
+          <label for="reg-name">Nome</label>
+          <input
+            id="reg-name"
+            type="text"
+            class="form-control"
+            [(ngModel)]="name"
+            name="name"
+            placeholder="Seu nome"
+            autocomplete="name"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="reg-email">Email</label>
+          <input
+            id="reg-email"
+            type="email"
+            class="form-control"
+            [(ngModel)]="email"
+            name="email"
+            placeholder="seu@email.com"
+            autocomplete="email"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="reg-password">Senha</label>
+          <input
+            id="reg-password"
+            type="password"
+            class="form-control"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="Mínimo 8 caracteres"
+            autocomplete="new-password"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="reg-confirm">Confirmar Senha</label>
+          <input
+            id="reg-confirm"
+            type="password"
+            class="form-control"
+            [(ngModel)]="confirmPassword"
+            name="confirmPassword"
+            placeholder="Repita a senha"
+            autocomplete="new-password"
+            required
+          />
+        </div>
+
+        <button
+          id="register-submit"
+          type="submit"
+          class="btn btn-primary auth-submit"
+          [disabled]="loading()"
+        >
+          @if (loading()) {
+            <span class="spinner"></span> Criando conta...
+          } @else {
+            ✨ Criar Conta
+          }
+        </button>
+      </form>
+    }
+
+    <!-- Login Link -->
+    <p class="auth-footer">
+      Já tem conta?
+      <a routerLink="/login" class="auth-link">Fazer login</a>
+    </p>
+  </div>
+</div>

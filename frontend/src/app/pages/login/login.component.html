@@ -1,0 +1,69 @@
+<div class="auth-page">
+  <div class="auth-container glass-card">
+    <!-- Logo -->
+    <div class="auth-logo">
+      <span class="logo-icon">🎬</span>
+      <h1 class="logo-text">Mr. Scrapper</h1>
+      <p class="logo-subtitle">Automated Video Database Builder</p>
+    </div>
+
+    <!-- Error Alert -->
+    @if (error()) {
+      <div class="alert alert-error">{{ error() }}</div>
+    }
+
+    <!-- Login Form -->
+    <form (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group">
+        <label for="login-email">Email</label>
+        <input
+          id="login-email"
+          type="email"
+          class="form-control"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="seu@email.com"
+          autocomplete="email"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="login-password">Senha</label>
+        <input
+          id="login-password"
+          type="password"
+          class="form-control"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          required
+        />
+      </div>
+
+      <div style="display: flex; gap: 12px; margin-top: var(--spacing-sm);">
+        <button
+          id="login-submit"
+          type="submit"
+          class="btn btn-primary auth-submit"
+          style="flex: 1; margin-top: 0;"
+          [disabled]="loading()"
+        >
+          @if (loading()) {
+            <span class="spinner"></span> Entrando...
+          } @else {
+            🚀 Entrar
+          }
+        </button>
+        <a 
+          routerLink="/register" 
+          class="btn btn-secondary auth-submit"
+          style="flex: 1; margin-top: 0; text-align: center; text-decoration: none;"
+        >
+          ✨ Criar conta
+        </a>
+      </div>
+    </form>
+  </div>
+</div>

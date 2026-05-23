@@ -1,0 +1,175 @@
+<div class="home-layout">
+  <!-- ═══ Top Bar ═══════════════════════════════════════════════ -->
+  <header class="topbar">
+    <div class="topbar-inner container">
+      <div class="topbar-brand">
+        <span class="brand-icon">🎬</span>
+        <span class="brand-name">Mr. Scrapper</span>
+      </div>
+
+      <!-- Search -->
+      <div class="topbar-search">
+        <input
+          id="search-input"
+          type="text"
+          class="search-input"
+          placeholder="Buscar vídeos..."
+          [value]="searchQuery()"
+          (keyup.enter)="onSearch(searchInput.value)"
+          #searchInput
+        />
+        <button
+          id="search-btn"
+          class="btn btn-primary btn-sm"
+          (click)="onSearch(searchInput.value)"
+        >
+          🔍
+        </button>
+      </div>
+
+      <!-- User -->
+      <div class="topbar-user">
+        <span class="user-greeting">Olá, {{ userName }}</span>
+        <button id="logout-btn" class="btn btn-secondary btn-sm" (click)="logout()">
+          Sair
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ Main Content ══════════════════════════════════════════ -->
+  <main class="main-content container">
+
+    <!-- ── Scraper Panel ──────────────────────────────────────── -->
+    <section class="scraper-panel glass-card" id="scraper-panel">
+      <h2 class="section-title">🔍 Nova Busca</h2>
+
+      <div class="scraper-form">
+        <input
+          id="scrape-query"
+          type="text"
+          class="form-control"
+          placeholder="Termo de busca (ex: nature, technology, abstract)"
+          [(ngModel)]="scrapeQuery"
+        />
+        <div class="scraper-count">
+          <label for="scrape-count">Quantidade:</label>
+          <input
+            id="scrape-count"
+            type="number"
+            class="form-control count-input"
+            [(ngModel)]="scrapeCount"
+            min="1"
+            max="500"
+          />
+        </div>
+        <button
+          id="scrape-start-btn"
+          class="btn btn-primary"
+          (click)="startScrape()"
+          [disabled]="scrapeLoading()"
+        >
+          🚀 Adicionar à Fila
+        </button>
+      </div>
+
+      <!-- Scrape Progress -->
+      @if (scrapeStatus()?.is_running) {
+        <div class="scrape-progress" id="scrape-progress">
+          <div class="progress-header">
+            <span>Buscando: <strong>{{ scrapeStatus()!.query }}</strong></span>
+            <button class="btn btn-danger btn-sm" (click)="stopScrape()">⏹ Parar</button>
+          </div>
+          <div class="progress-bar-container">
+            <div
+              class="progress-bar"
+              [style.width.%]="scrapeStatus()!.progress_percent"
+            ></div>
+          </div>
+          <div class="progress-stats">
+            <span>✅ {{ scrapeStatus()!.downloaded_count }} / {{ scrapeStatus()!.target_count }}</span>
+            <span>❌ Falhas: {{ scrapeStatus()!.failed_count }}</span>
+            <span>{{ scrapeStatus()!.progress_percent | number: '1.0-1' }}%</span>
+          </div>
+        </div>
+      }
+
+      <!-- Scrape Queue -->
+      @if (scrapeStatus()?.queue?.length) {
+        <div class="scrape-queue" style="margin-top: 16px;">
+          <h3 style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; color: var(--text-muted);">Fila de Espera ({{ scrapeStatus()!.queue.length }})</h3>
+          <ul class="queue-list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+            @for (item of scrapeStatus()!.queue; track item.id) {
+              <li class="queue-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid var(--border-subtle); padding: 8px 12px; border-radius: var(--radius-md);">
+                <span style="font-size: 0.9rem;">⏳ <strong>{{ item.query }}</strong> ({{ item.target_count }} vídeos)</span>
+                <button class="btn btn-secondary btn-sm" (click)="removeFromQueue(item.id)" style="padding: 2px 8px; font-size: 0.75rem;" title="Remover da fila">✕</button>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
+      @if (scrapeMessage()) {
+        <div class="alert alert-success" style="margin-top: 12px;">
+          {{ scrapeMessage() }}
+        </div>
+      }
+    </section>
+
+    <!-- ── Videos Grid ────────────────────────────────────────── -->
+    <section class="videos-section">
+      <div class="section-header">
+        <h2 class="section-title">📹 Biblioteca de Vídeos</h2>
+        <span class="video-count">{{ totalVideos() }} vídeos</span>
+      </div>
+
+      @if (loading()) {
+        <!-- Skeleton Loader -->
+        <div class="video-grid">
+          @for (i of [1,2,3,4,5,6,7,8]; track i) {
+            <div class="skeleton-card">
+              <div class="skeleton skeleton-thumb"></div>
+              <div class="skeleton skeleton-title"></div>
+              <div class="skeleton skeleton-meta"></div>
+            </div>
+          }
+        </div>
+      } @else if (videos().length === 0) {
+        <div class="empty-state">
+          <span class="empty-icon">🎬</span>
+          <h3>Nenhum vídeo encontrado</h3>
+          <p>Use o painel de busca acima para começar a montar sua database.</p>
+        </div>
+      } @else {
+        <div class="video-grid" id="video-grid">
+          @for (video of videos(); track trackByVideoId($index, video)) {
+            <app-video-card [video]="video" />
+          }
+        </div>
+
+        <!-- Pagination -->
+        @if (totalPages > 1) {
+          <div class="pagination">
+            <button
+              class="btn btn-secondary btn-sm"
+              [disabled]="currentPage() <= 1"
+              (click)="prevPage()"
+            >
+              ← Anterior
+            </button>
+            <span class="page-info">
+              Página {{ currentPage() }} de {{ totalPages }}
+            </span>
+            <button
+              class="btn btn-secondary btn-sm"
+              [disabled]="currentPage() >= totalPages"
+              (click)="nextPage()"
+            >
+              Próxima →
+            </button>
+          </div>
+        }
+      }
+    </section>
+  </main>
+</div>

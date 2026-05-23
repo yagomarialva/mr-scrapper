@@ -1,0 +1,155 @@
+<div class="player-page">
+  <!-- ═══ Top Bar ═══════════════════════════════════════════════ -->
+  <header class="topbar">
+    <div class="topbar-inner container">
+      <a routerLink="/" class="back-link" id="back-to-home">
+        <span class="back-arrow">←</span>
+        <span class="brand-icon">🎬</span>
+        <span class="brand-name">Mr. Scrapper</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ═══ Content ═══════════════════════════════════════════════ -->
+  <main class="player-content container">
+    @if (loading()) {
+    <div class="loading-state">
+      <div class="skeleton skeleton-video"></div>
+      <div class="skeleton skeleton-title-lg"></div>
+      <div class="skeleton skeleton-meta-lg"></div>
+    </div>
+    } @else if (error()) {
+    <div class="error-state">
+      <h2>❌ {{ error() }}</h2>
+      <a routerLink="/" class="btn btn-primary">Voltar à Home</a>
+    </div>
+    } @else {
+    @if (video(); as v) {
+    <div class="player-layout">
+      <!-- ── Video Player ───────────────────────────────────── -->
+      <div class="player-main">
+        <div class="video-wrapper">
+          <video id="video-player" class="video-element" controls preload="metadata" [src]="streamUrl"
+            [poster]="posterUrl" (ended)="onVideoEnded()" autoplay>
+            Seu navegador não suporta vídeos HTML5.
+          </video>
+        </div>
+
+        <!-- Video Info -->
+        <div class="video-info">
+          @if (!isEditing()) {
+          <h1 class="video-title" id="video-title">{{ v.title }}</h1>
+          } @else {
+          <input id="edit-title" type="text" class="form-control edit-title-input" [(ngModel)]="editTitle"
+            placeholder="Título do vídeo" />
+          }
+
+          <div class="video-meta-row">
+            <div class="video-meta">
+              <span class="meta-item">📅 {{ formattedDate }}</span>
+              <span class="meta-item">⏱ {{ formattedDuration }}</span>
+              <span class="meta-item">📦 {{ formattedFileSize }}</span>
+              <span class="meta-item platform-badge">{{ v.platform }}</span>
+            </div>
+
+            <div class="video-actions">
+              <a id="download-btn" [href]="downloadUrl" class="btn btn-secondary btn-sm" download>
+                ⬇️ Download
+              </a>
+              <button id="edit-btn" class="btn btn-secondary btn-sm" (click)="toggleEdit()">
+                @if (isEditing()) { ✕ Cancelar } @else { ✏️ Editar }
+              </button>
+              <button id="delete-btn" class="btn btn-danger btn-sm" (click)="confirmDelete()">
+                🗑️ Excluir
+              </button>
+            </div>
+          </div>
+
+          <!-- Success Message -->
+          @if (saveSuccess()) {
+          <div class="alert alert-success" style="margin-top: 12px;">
+            ✅ Alterações salvas com sucesso!
+          </div>
+          }
+
+          <!-- Edit Form -->
+          @if (isEditing()) {
+          <div class="edit-form animate-fade-in">
+            <div class="form-group">
+              <label for="edit-description">Descrição</label>
+              <textarea id="edit-description" class="form-control" [(ngModel)]="editDescription"
+                placeholder="Descrição do vídeo" rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="edit-tags">Tags (separadas por vírgula)</label>
+              <input id="edit-tags" type="text" class="form-control" [(ngModel)]="editTags"
+                placeholder="nature, abstract, 4k" />
+            </div>
+
+            <button id="save-btn" class="btn btn-primary" (click)="saveChanges()" [disabled]="saveLoading()">
+              @if (saveLoading()) {
+              <span class="spinner"></span> Salvando...
+              } @else {
+              💾 Salvar Alterações
+              }
+            </button>
+          </div>
+          }
+
+          <!-- Description (read mode) -->
+          @if (!isEditing() && v.description) {
+          <div class="video-description">
+            <h3>Descrição</h3>
+            <p>{{ v.description }}</p>
+          </div>
+          }
+
+          <!-- Tags -->
+          @if (v.tags && v.tags.length > 0 && !isEditing()) {
+          <div class="video-tags">
+            @for (tag of v.tags; track tag) {
+            <span class="tag-chip">{{ tag }}</span>
+            }
+          </div>
+          }
+
+          <!-- Source Info -->
+          <div class="source-info">
+            <span class="source-label">Fonte:</span>
+            <a [href]="v.source_url" target="_blank" class="source-link">
+              {{ v.source_url | slice: 0: 80 }}...
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+    }
+  </main>
+
+  <!-- ═══ Delete Confirmation Modal ═════════════════════════════ -->
+  @if (showDeleteModal()) {
+  <div class="modal-overlay" (click)="cancelDelete()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2 style="margin-bottom: 12px;">🗑️ Excluir Vídeo</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 24px;">
+        Tem certeza que deseja excluir <strong>{{ video()?.title }}</strong>?
+        Esta ação irá remover o vídeo do banco de dados e do disco permanentemente.
+      </p>
+      <div style="display: flex; gap: 12px; justify-content: flex-end;">
+        <button class="btn btn-secondary" (click)="cancelDelete()">
+          Cancelar
+        </button>
+        <button id="confirm-delete-btn" class="btn btn-danger" (click)="executeDelete()" [disabled]="deleteLoading()">
+          @if (deleteLoading()) {
+          <span class="spinner"></span> Excluindo...
+          } @else {
+          Sim, Excluir
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+</div>

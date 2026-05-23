@@ -1,0 +1,130 @@
+/* ── Video Card ────────────────────────────────────────────────── */
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.card {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  transition: all var(--transition-normal);
+  animation: fadeIn 0.4s ease forwards;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: var(--border-accent);
+  box-shadow: var(--shadow-glow);
+  background: var(--bg-card-hover);
+}
+
+/* ── Thumbnail ────────────────────────────────────────────────── */
+.card-thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+
+.thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.card:hover .thumb-img {
+  transform: scale(1.08);
+}
+
+.duration-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  z-index: 2;
+}
+
+/* ── Hover Play Overlay ───────────────────────────────────────── */
+.card-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+  z-index: 2;
+}
+
+.thumb-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.card:hover .card-overlay {
+  opacity: 1;
+}
+
+.play-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: white;
+  box-shadow: 0 4px 20px var(--accent-glow);
+  transform: scale(0.8);
+  transition: transform var(--transition-normal);
+}
+
+.card:hover .play-icon {
+  transform: scale(1);
+}
+
+/* ── Info ──────────────────────────────────────────────────────── */
+.card-info {
+  padding: 12px 14px 14px;
+}
+
+.card-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.card-platform {
+  text-transform: capitalize;
+}

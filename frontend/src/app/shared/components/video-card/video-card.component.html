@@ -1,0 +1,43 @@
+<a [routerLink]="['/video', video.id]" class="card-link" [id]="'video-card-' + video.id">
+  <div class="card" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
+    <!-- Thumbnail -->
+    <div class="card-thumb">
+      <img
+        [src]="thumbSrc"
+        [alt]="video.title"
+        class="thumb-img"
+        loading="lazy"
+        (error)="onThumbError($event)"
+      />
+      
+      @if (isHovered) {
+        <video
+          [src]="videoStreamUrl"
+          class="thumb-video"
+          autoplay
+          muted
+          playsinline
+          (timeupdate)="onTimeUpdate($event)"
+        ></video>
+      }
+
+      <!-- Duration Badge -->
+      @if (formattedDuration) {
+        <span class="duration-badge">{{ formattedDuration }}</span>
+      }
+      <!-- Hover Overlay -->
+      <div class="card-overlay">
+        <span class="play-icon">▶</span>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="card-info">
+      <h3 class="card-title">{{ video.title }}</h3>
+      <div class="card-meta">
+        <span class="card-platform">{{ video.platform }}</span>
+        <span class="card-date">{{ formattedDate }}</span>
+      </div>
+    </div>
+  </div>
+</a>
