@@ -20,13 +20,11 @@ from app.schemas import (
 )
 from app.services.auth_service import (
     create_access_token,
-    create_email_confirmation_token,
     decode_token,
     get_current_user,
     hash_password,
     verify_password,
 )
-from app.services.email_service import send_confirmation_email
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
@@ -54,39 +52,21 @@ async def register(payload: UserRegister, db: AsyncSession = Depends(get_db)):
             detail="Um usuário com este email já existe.",
         )
 
-    # Create user (unverified)
+    # Create user (verified immediately)
     user = User(
         name=payload.name,
         email=payload.email,
         hashed_password=hash_password(payload.password),
         is_active=True,
-        is_verified=False,
+        is_verified=True,
     )
     db.add(user)
-    await db.flush()  # Get the user.id before commit
-
-    # Generate email confirmation token
-    token = create_email_confirmation_token(str(user.id))
-
-    # Send confirmation email (non-blocking failure)
-    email_sent = await send_confirmation_email(
-        to_email=user.email,
-        name=user.name,
-        confirmation_token=token,
-    )
-
     await db.commit()
 
-    if email_sent:
-        return MessageResponse(
-            message="Conta criada com sucesso!",
-            detail="Um email de confirmação foi enviado. Verifique sua caixa de entrada.",
-        )
-    else:
-        return MessageResponse(
-            message="Conta criada, mas houve um problema ao enviar o email.",
-            detail="Tente fazer login para reenviar o email de confirmação.",
-        )
+    return MessageResponse(
+        message="Conta criada com sucesso!",
+        detail="Agora você pode fazer login.",
+    )
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -113,15 +93,6 @@ async def login(payload: UserLogin, db: AsyncSession = Depends(get_db)):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Conta desativada. Entre em contato com o administrador.",
-        )
-
-    if not user.is_verified:
-        # Re-send confirmation email
-        token = create_email_confirmation_token(str(user.id))
-        await send_confirmation_email(user.email, user.name, token)
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Email não verificado. Um novo email de confirmação foi enviado.",
         )
 
     access_token = create_access_token(str(user.id), user.email)
