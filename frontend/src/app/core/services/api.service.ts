@@ -76,6 +76,14 @@ export class ApiService {
     return this.http.get<VideoListResponse>(`${this.API}/videos`, { params });
   }
 
+  getAllVideoIds(search?: string): Observable<string[]> {
+    let params = new HttpParams();
+    if (search) {
+      params = params.set('search', search);
+    }
+    return this.http.get<string[]>(`${this.API}/videos/all-ids`, { params });
+  }
+
   getVideo(id: string): Observable<VideoResponse> {
     return this.http.get<VideoResponse>(`${this.API}/videos/${id}`);
   }
@@ -92,6 +100,19 @@ export class ApiService {
     return this.http.delete<{ message: string; id: string }>(
       `${this.API}/videos/${id}`
     );
+  }
+
+  bulkDelete(ids: string[]): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.API}/videos/bulk/delete`, {
+      video_ids: ids
+    });
+  }
+
+  bulkEdit(ids: string[], data: VideoUpdate): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.API}/videos/bulk/edit`, {
+      video_ids: ids,
+      tags: data.tags
+    });
   }
 
   // ── URL Helpers ───────────────────────────────────────────────

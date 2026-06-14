@@ -5,6 +5,7 @@ CRUD, streaming (HTTP 206), download, and thumbnail endpoints.
 
 import os
 import stat
+import uuid
 from pathlib import Path
 from uuid import UUID
 
@@ -17,7 +18,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.database import get_db
 from app.models import User, Video
-from app.schemas import VideoListResponse, VideoResponse, VideoUpdate
+from app.schemas import (
+    BulkDeleteRequest,
+    BulkEditRequest,
+    VideoListResponse,
+    VideoResponse,
+    VideoUpdate,
+)
 from app.services.auth_service import get_current_user
 
 router = APIRouter(prefix="/api/videos", tags=["Videos"])
@@ -76,6 +83,26 @@ async def list_videos(
         page=page,
         page_size=page_size,
     )
+
+
+# ─────────────────────────────────────────────────────────────────
+# GET /api/videos/all-ids — Get all matching video IDs
+# ─────────────────────────────────────────────────────────────────
+
+@router.get("/all-ids", response_model=list[uuid.UUID])
+async def get_all_video_ids(
+    search: str | None = None,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
+):
+    """Retrieve all video IDs, optionally filtered by search query."""
+    stmt = select(Video.id)
+
+    if search:
+        stmt = stmt.where(Video.title.ilike(f"%{search}%"))
+
+    result = await db.execute(stmt)
+    return result.scalars().all()
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -352,3 +379,61 @@ async def delete_video(
     await db.commit()
 
     return {"message": "Vídeo excluído com sucesso.", "id": str(video_id)}
+
+
+# ─────────────────────────────────────────────────────────────────
+# POST /api/videos/bulk/edit — Bulk edit metadata
+# ─────────────────────────────────────────────────────────────────
+
+@router.post("/bulk/edit")
+async def bulk_edit_videos(
+    payload: BulkEditRequest,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
+):
+    """Update metadata (tags) for multiple videos."""
+    result = await db.execute(select(Video).where(Video.id.in_(payload.video_ids)))
+    videos = result.scalars().all()
+
+    updated_count = 0
+    for video in videos:
+        if payload.tags is not None:
+            video.tags = payload.tags
+        updated_count += 1
+
+    await db.commit()
+    return {"message": f"{updated_count} vídeos atualizados com sucesso."}
+
+
+# ─────────────────────────────────────────────────────────────────
+# POST /api/videos/bulk/delete — Bulk delete videos (DB + disk)
+# ─────────────────────────────────────────────────────────────────
+
+@router.post("/bulk/delete")
+async def bulk_delete_videos(
+    payload: BulkDeleteRequest,
+    db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
+):
+    """Delete multiple videos from the database AND remove files from disk."""
+    result = await db.execute(select(Video).where(Video.id.in_(payload.video_ids)))
+    videos = result.scalars().all()
+
+    deleted_count = 0
+    for video in videos:
+        # Delete files from disk
+        video_file = Path(settings.MEDIA_PATH) / video.video_path
+        if video_file.exists():
+            video_file.unlink()
+
+        if video.thumb_path:
+            thumb_file = Path(settings.MEDIA_PATH) / video.thumb_path
+            if thumb_file.exists():
+                thumb_file.unlink()
+
+        # Delete from database
+        await db.delete(video)
+        deleted_count += 1
+
+    await db.commit()
+    return {"message": f"{deleted_count} vídeos excluídos com sucesso."}

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ApiService, VideoResponse } from '../../../core/services/api.service';
@@ -12,6 +12,9 @@ import { ApiService, VideoResponse } from '../../../core/services/api.service';
 })
 export class VideoCardComponent {
   @Input({ required: true }) video!: VideoResponse;
+  @Input() selectable = false;
+  @Input() selected = false;
+  @Output() selectionChange = new EventEmitter<boolean>();
 
   isHovered = false;
 
@@ -61,5 +64,12 @@ export class VideoCardComponent {
       videoElement.currentTime = 0;
       videoElement.play().catch(() => {});
     }
+  }
+
+  toggleSelection(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.selected = !this.selected;
+    this.selectionChange.emit(this.selected);
   }
 }

@@ -3,7 +3,7 @@
   <header class="topbar">
     <div class="topbar-inner container">
       <div class="topbar-brand">
-        <span class="brand-icon">🎬</span>
+        <span class="brand-icon">⛏️</span>
         <span class="brand-name">Mr. Scrapper</span>
       </div>
 
@@ -120,7 +120,18 @@
     <section class="videos-section">
       <div class="section-header">
         <h2 class="section-title">📹 Biblioteca de Vídeos</h2>
-        <span class="video-count">{{ totalVideos() }} vídeos</span>
+        <div class="header-actions" style="display: flex; gap: 12px; align-items: center;">
+          <span class="video-count">{{ totalVideos() }} vídeos</span>
+          
+          <button class="btn btn-sm btn-secondary" style="padding: 4px 8px; font-size: 0.8rem;" (click)="selectedVideos().size === totalVideos() ? clearSelection() : selectAll()">
+            {{ selectedVideos().size === totalVideos() && totalVideos() > 0 ? 'Limpar Seleção' : 'Selecionar Todos' }}
+          </button>
+
+          <div class="view-toggles" style="display: flex; gap: 4px; background: var(--bg-card); padding: 4px; border-radius: 6px; border: 1px solid var(--border-subtle);">
+            <button class="btn btn-sm" [class.btn-primary]="viewMode() === 'grid'" [class.btn-secondary]="viewMode() !== 'grid'" (click)="toggleViewMode('grid')" style="padding: 4px 8px; font-size: 0.8rem;">▦ Grade</button>
+            <button class="btn btn-sm" [class.btn-primary]="viewMode() === 'list'" [class.btn-secondary]="viewMode() !== 'list'" (click)="toggleViewMode('list')" style="padding: 4px 8px; font-size: 0.8rem;">☰ Lista</button>
+          </div>
+        </div>
       </div>
 
       @if (loading()) {
@@ -136,14 +147,19 @@
         </div>
       } @else if (videos().length === 0) {
         <div class="empty-state">
-          <span class="empty-icon">🎬</span>
+          <span class="empty-icon">⛏️</span>
           <h3>Nenhum vídeo encontrado</h3>
           <p>Use o painel de busca acima para começar a montar sua database.</p>
         </div>
       } @else {
-        <div class="video-grid" id="video-grid">
+        <div [class]="viewMode() === 'grid' ? 'video-grid' : 'video-list'" id="video-grid">
           @for (video of videos(); track trackByVideoId($index, video)) {
-            <app-video-card [video]="video" />
+            <app-video-card 
+              [video]="video"
+              [selectable]="true"
+              [selected]="selectedVideos().has(video.id)"
+              (selectionChange)="toggleSelection(video.id, $event)"
+            />
           }
         </div>
 
@@ -172,4 +188,21 @@
       }
     </section>
   </main>
+
+  <!-- ── Bulk Action Toolbar ────────────────────────────────────── -->
+  @if (selectedVideos().size > 0) {
+    <div class="bulk-toolbar glass-card">
+      <div class="container bulk-toolbar-inner">
+        <span class="bulk-count">{{ selectedVideos().size }} vídeo(s) selecionado(s)</span>
+        <div class="bulk-actions">
+          <button class="btn btn-secondary btn-sm" (click)="selectAll()">Selecionar Todos</button>
+          <button class="btn btn-secondary btn-sm" (click)="clearSelection()">Limpar</button>
+          <div class="bulk-divider"></div>
+          <button class="btn btn-primary btn-sm" (click)="bulkEdit()">✎ Editar Tags</button>
+          <button class="btn btn-primary btn-sm" (click)="bulkDownload()">⬇ Download</button>
+          <button class="btn btn-danger btn-sm" (click)="bulkDelete()">🗑 Excluir</button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

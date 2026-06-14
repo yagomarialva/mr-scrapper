@@ -60,6 +60,17 @@ class VideoUpdate(BaseModel):
     tags: list[str] | None = None
 
 
+class BulkDeleteRequest(BaseModel):
+    """Payload for POST /api/videos/bulk/delete."""
+    video_ids: list[uuid.UUID] = Field(..., min_length=1)
+
+
+class BulkEditRequest(BaseModel):
+    """Payload for POST /api/videos/bulk/edit."""
+    video_ids: list[uuid.UUID] = Field(..., min_length=1)
+    tags: list[str] | None = None
+
+
 class VideoResponse(BaseModel):
     """Video data returned by the API."""
     id: uuid.UUID

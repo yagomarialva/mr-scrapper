@@ -1,5 +1,12 @@
-<a [routerLink]="['/video', video.id]" class="card-link" [id]="'video-card-' + video.id">
-  <div class="card" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
+<a [routerLink]="['/video', video.id]" class="card-link" [id]="'video-card-' + video.id" [class.is-selected]="selected">
+  <div class="card" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()" [class.selectable]="selectable" [class.selected]="selected">
+    
+    @if (selectable || selected) {
+      <div class="selection-overlay" (click)="toggleSelection($event)">
+        <input type="checkbox" class="selection-checkbox" [checked]="selected" />
+      </div>
+    }
+
     <!-- Thumbnail -->
     <div class="card-thumb">
       <img

@@ -1,0 +1,26 @@
+<dialog #dialog class="custom-modal">
+  @if (modalService.modalConfig(); as config) {
+    <div class="modal-content">
+      <h3 class="modal-title">{{ config.title }}</h3>
+      <p class="modal-message">{{ config.message }}</p>
+
+      @if (config.type === 'prompt') {
+        <input 
+          type="text" 
+          class="form-control modal-input" 
+          [placeholder]="config.placeholder" 
+          [(ngModel)]="promptValue"
+          (keyup.enter)="onConfirm()"
+          autofocus
+        />
+      }
+
+      <div class="modal-actions">
+        @if (config.type !== 'alert') {
+          <button class="btn btn-secondary" (click)="onCancel()">{{ config.cancelText }}</button>
+        }
+        <button class="btn btn-primary" (click)="onConfirm()">{{ config.confirmText }}</button>
+      </div>
+    </div>
+  }
+</dialog>

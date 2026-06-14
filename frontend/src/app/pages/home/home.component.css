@@ -284,3 +284,50 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Video List View ───────────────────────────────────────────── */
+.video-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+/* ── Bulk Action Toolbar ───────────────────────────────────────── */
+.bulk-toolbar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  border-radius: 50px;
+  padding: 12px 24px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 0 1px var(--border-accent);
+  background: var(--bg-card-hover);
+  backdrop-filter: blur(20px);
+}
+
+.bulk-toolbar-inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.bulk-count {
+  font-weight: 600;
+  color: var(--primary);
+  white-space: nowrap;
+}
+
+.bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bulk-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border-subtle);
+  margin: 0 8px;
+}
